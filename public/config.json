@@ -4,7 +4,7 @@
   "defaultPrefix": "b",
   "wcProjectId": "438d993e01dee143ce7113ba39c4437b",
   "gsbApiKey": "",
-  "gsbUrl": "https://gsb.api.mili.one",
+  "gsbUrl": "https://gsb.api.mili.one/v4/threatMatches:find",
   "mainChainPrefixes": ["b", "a", "e", "s"],
   "linkDomains": ["www.com.kg", "🔗.eu.org", "kurl.eu.org"],
   "walletWhitelist": [],

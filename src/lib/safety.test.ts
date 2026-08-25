@@ -1,5 +1,23 @@
-import { describe, expect, it } from 'vitest'
-import { checkLocalRules, checkUrlSafety, gsbUrlVariants, hostAndParents } from './safety'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { checkLocalRules, checkUrlSafety, gsbUrlVariants, hostAndParents, __resetSafetyCache } from './safety'
+
+const mocks = vi.hoisted(() => ({
+  config: {
+    gsbApiKey: '',
+    gsbUrl: '',
+    maxUrlLength: 2000,
+  },
+}))
+
+vi.mock('../config/app', () => ({
+  config: mocks.config,
+}))
+
+beforeEach(() => {
+  mocks.config.gsbApiKey = ''
+  mocks.config.gsbUrl = ''
+  mocks.config.maxUrlLength = 2000
+})
 
 describe('local safety rules', () => {
   it('passes normal urls', () => {
@@ -39,6 +57,61 @@ describe('gsb variants', () => {
   })
 })
 
+describe('gsb endpoint path', () => {
+  it('appends the threatMatches:find path when gsbUrl is a bare host', async () => {
+    mocks.config.gsbUrl = 'https://gsb.api.mili.one'
+    const originalFetch = globalThis.fetch
+    const requested: string[] = []
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('eth-phishing-detect')) {
+        return new Response(JSON.stringify({ version: 1, blacklist: [] }), { status: 200 })
+      }
+      if (url.includes('gsb.api.mili.one')) {
+        requested.push(url)
+        return new Response(JSON.stringify({}), { status: 200 })
+      }
+      return originalFetch(input as RequestInfo)
+    }) as typeof fetch
+    try {
+      const verdict = await checkUrlSafety('https://example.com/')
+      expect(requested.length).toBeGreaterThan(0)
+      for (const u of requested) {
+        expect(u).toContain('/v4/threatMatches:find')
+      }
+      expect(verdict.status).toBe('safe')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('keeps an already-qualified gsbUrl unchanged', async () => {
+    mocks.config.gsbUrl = 'https://gsb.api.mili.one/v4/threatMatches:find'
+    const originalFetch = globalThis.fetch
+    const requested: string[] = []
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('eth-phishing-detect')) {
+        return new Response(JSON.stringify({ version: 1, blacklist: [] }), { status: 200 })
+      }
+      if (url.includes('gsb.api.mili.one')) {
+        requested.push(url)
+        return new Response(JSON.stringify({}), { status: 200 })
+      }
+      return originalFetch(input as RequestInfo)
+    }) as typeof fetch
+    try {
+      await checkUrlSafety('https://example.com/')
+      expect(requested.length).toBeGreaterThan(0)
+      for (const u of requested) {
+        expect(u).toBe('https://gsb.api.mili.one/v4/threatMatches:find')
+      }
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+})
+
 describe('phishing list integration (stubbed fetch)', () => {
   it('normalizes legacy blacklist/whitelist keys and blocks listed domains', async () => {
     const originalFetch = globalThis.fetch
@@ -58,6 +131,7 @@ describe('phishing list integration (stubbed fetch)', () => {
       return originalFetch(input as RequestInfo)
     }) as typeof fetch
     try {
+      __resetSafetyCache()
       const bad = await checkUrlSafety('https://evil.example/login')
       expect(bad.status).toBe('blocked')
 

@@ -17,6 +17,11 @@ interface PhishingConfig {
 
 let memoryCache: PhishingConfig | null = null
 
+export function __resetSafetyCache(): void {
+  memoryCache = null
+  inflight = null
+}
+
 function readLocalCache(): PhishingConfig | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY)
@@ -150,8 +155,12 @@ async function gsbCheck(url: string): Promise<boolean> {
     entries.push({ hash: bytesToBase64(full.slice(0, 8)) })
   }
   const endpoint = config.gsbUrl || 'https://safebrowsing.googleapis.com/v5/threatMatches:find'
+  const base =
+    /threatMatches:find$/.test(endpoint) || /v[45]\//.test(endpoint)
+      ? endpoint
+      : `${endpoint.replace(/\/$/, '')}/v4/threatMatches:find`
   const query = config.gsbApiKey ? `?key=${encodeURIComponent(config.gsbApiKey)}` : ''
-  const res = await fetch(`${endpoint}${query}`, {
+  const res = await fetch(`${base}${query}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
