@@ -272,7 +272,9 @@
         ptr.packed === null ? '—（点分格式）' : '0x' + ptr.packed.toString(16)
 
       var link = document.getElementById('r-link')
-      link.href = parsed.chain.explorer + '/txs?block=' + fmt(ptr.blockNumber) + '&sort=asc&ps=100'
+      var page = Math.floor(ptr.transactionIndex / 10) + 1
+      link.href =
+        parsed.chain.explorer + '/txs?block=' + fmt(ptr.blockNumber) + '&sort=asc&ps=10&p=' + page
       link.textContent = '在 ' + parsed.chain.name + ' 区块浏览器查看第 ' + fmt(ptr.blockNumber) + ' 区块的交易 ↗'
 
       resultEl.classList.add('show')
