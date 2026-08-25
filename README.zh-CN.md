@@ -68,6 +68,16 @@ short  = base58(packed)                              # Bitcoin 字母表
 | Arbitrum 今天 | 8 |
 | 100 年后最坏假设（10 块/秒） | 9 |
 
+### 反解工具
+
+根目录 `query.html` 是一个**零依赖**的短码反解工具。它在本地解码 base58 短码，显示链、区块号、交易序号、打包值（十进制 + hex），并提供对应区块浏览器的链接。不发送任何网络请求。
+
+```text
+b/7Kx2mPq9            → 前缀 / 短码
+/c/3Wk/7Kx2mPq9       → 通用链 ID 形式
+xx.yy                 → 点分回退格式（区块.序号）
+```
+
 ---
 
 ## Calldata 格式
@@ -168,9 +178,14 @@ short  = base58(packed)                              # Bitcoin 字母表
 
 ---
 
-## 黑名单（`github.com/eurl-eth/blocklist`）
+## 安全检测策略
 
-社区维护的名单，由前端在运行时获取（GitHub tree API，localStorage 缓存 1 小时）：
+按顺序执行，外部服务不可用时安全降级：
+
+1. **本地规则** – scheme 白名单（http/https）、长度上限、控制字符、禁止内嵌凭据。
+2. **MetaMask 钓鱼名单** – 公开 `eth-phishing-detect`，本地缓存 1 小时。
+3. **Google Safe Browsing v5** – 仅配置 `gsbApiKey`/`gsbUrl` 时启用。
+4. **黑名单（`github.com/eurl-eth/blocklist`）** – 社区维护的名单，由前端在运行时获取（GitHub tree API，localStorage 缓存 1 小时）：
 
 ```
 a/<code>.json                → 封禁某个短码
@@ -179,23 +194,13 @@ target/<host>/<path>.json    → 封禁某个路径前缀
 wallet/<0x…>.json            → 封禁某个钱包地址（创建 + 跳转）
 ```
 
-命中 → 页面显示被拦截（可用 `hideBlockedUrl` 隐藏目标 URL）。通过向仓库提交 PR 添加条目。
-
----
-
-## 安全检测策略
-
-按顺序执行，外部服务不可用时安全降级：
-
-1. **本地规则** – scheme 白名单（http/https）、长度上限、控制字符、禁止内嵌凭据。
-2. **MetaMask 钓鱼名单** – 公开 `eth-phishing-detect`，本地缓存 1 小时。
-3. **Google Safe Browsing v5** – 仅配置 `gsbApiKey`/`gsbUrl` 时启用。
-
 判定：
 
-- 命中 → 阻止跳转并显示原因。
+- 命中（安全检测或黑名单）→ 阻止跳转并显示原因（可用 `hideBlockedUrl` 隐藏目标 URL）。
 - 所有外部检测不可用 → 提示「无法完成安全检查」，需用户勾选确认后才可继续。
 - 全部通过 → 倒计时跳转（可取消）。
+
+黑名单条目通过向 `github.com/eurl-eth/blocklist` 提交 PR 添加。
 
 ---
 
@@ -243,31 +248,19 @@ npm run deploy            # https://<name>.<account>.workers.dev
 
 然后在 `config.json` 中设置 `rpcProxyUrl`，作为每条链的首选端点。
 
-### 5.（可选）单文件版
+### 5. 私有部署（可选）
 
-`npm run build:single` 将整个应用打包为单个自包含 `eurl.html`（hash 路由 + 内联字体，约 2.7 MB）。可直接双击打开（`file://`），或部署到任意静态托管而无需 SPA 回退。
+- 设置 `walletWhitelist` 仅允许指定钱包创建和解析。
+- 设置 `chainWhitelist`/`chainBlacklist` 限制可用的链。
+- 设置 `hideBlockedUrl: true` 永不展示被拦截的目标。
+
+私有部署如需完全自包含的单个文件，`npm run build:single` 可将整个应用打包为单个 `eurl.html`（hash 路由 + 内联字体，约 2.7 MB），可直接双击打开（`file://`）或部署到任意静态托管而无需 SPA 回退：
 
 ```bash
 npm run build:single        # 输出 dist-single/ 并复制为仓库根目录的 eurl.html
 ```
 
 默认的 `npm run build` 仍产出常规多文件 `dist/`——单文件配置（`vite.singlefile.config.ts`）仅在执行 `build:single` 时生效。
-
-### 6. 短码反解工具（离线工具）
-
-根目录 `query.html` 是一个**零依赖**的短码反解工具。它在本地解码 base58 短码，显示链、区块号、交易序号、打包值（十进制 + hex），并提供对应区块浏览器的链接。不发送任何网络请求。
-
-```text
-b/7Kx2mPq9            → 前缀 / 短码
-/c/3Wk/7Kx2mPq9       → 通用链 ID 形式
-xx.yy                 → 点分回退格式（区块.序号）
-```
-
-### 7. 私有部署（可选）
-
-- 设置 `walletWhitelist` 仅允许指定钱包创建和解析。
-- 设置 `chainWhitelist`/`chainBlacklist` 限制可用的链。
-- 设置 `hideBlockedUrl: true` 永不展示被拦截的目标。
 
 ### 路由表
 

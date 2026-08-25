@@ -68,6 +68,16 @@ short  = base58(packed)                              # Bitcoin alphabet
 | Arbitrum today | 8 |
 | 100-year worst case (10 blocks/s) | 9 |
 
+### Decoder tool
+
+`query.html` (repo root) is a **zero-dependency** short-code decoder. It decodes the base58 code locally and shows the chain, block number, transaction index, and packed value (decimal + hex), plus a link to the matching block explorer page. No network request is made.
+
+```text
+b/7Kx2mPq9            → prefix / code
+/c/3Wk/7Kx2mPq9       → generic chain ID form
+xx.yy                 → dotted fallback format (block.txIndex)
+```
+
 ---
 
 ## Calldata Format
@@ -168,9 +178,14 @@ Testnets configured with `faucetUrl` show a "get free testnet ETH" link on the c
 
 ---
 
-## Blocklist (`github.com/eurl-eth/blocklist`)
+## Safety Detection Strategy
 
-Community-maintained list consumed by the frontend at runtime (GitHub tree API, 1 h localStorage cache):
+Executed in order, fail-open on service unavailability:
+
+1. **Local rules** – scheme whitelist (http/https), length cap, control chars, no embedded credentials.
+2. **MetaMask phishing list** – public `eth-phishing-detect`, cached 1 h locally.
+3. **Google Safe Browsing v5** – enabled only when `gsbApiKey`/`gsbUrl` is configured.
+4. **Blocklist (`github.com/eurl-eth/blocklist`)** – community-maintained list consumed at runtime (GitHub tree API, 1 h localStorage cache):
 
 ```
 a/<code>.json                → block a specific short code
@@ -179,23 +194,13 @@ target/<host>/<path>.json    → block a path prefix
 wallet/<0x…>.json            → block a wallet address (create + redirect)
 ```
 
-Hit → the page shows a blocked screen (the target URL can be hidden via `hideBlockedUrl`). Submit entries via PR to the repo.
-
----
-
-## Safety Detection Strategy
-
-Executed in order, fail-open on service unavailability:
-
-1. **Local rules** – scheme whitelist (http/https), length cap, control chars, no embedded credentials.
-2. **MetaMask phishing list** – public `eth-phishing-detect`, cached 1 h locally.
-3. **Google Safe Browsing v5** – enabled only when `gsbApiKey`/`gsbUrl` is configured.
-
 Outcomes:
 
-- Hit → block redirect and show the reason.
+- Hit (safety check or blocklist) → block redirect and show the reason (the target URL can be hidden via `hideBlockedUrl`).
 - All external checks unavailable → "cannot complete safety check", user must confirm to continue.
 - All clear → countdown redirect (cancelable).
+
+Submit blocklist entries via PR to `github.com/eurl-eth/blocklist`.
 
 ---
 
@@ -243,31 +248,19 @@ npm run deploy            # https://<name>.<account>.workers.dev
 
 Then set `rpcProxyUrl` in `config.json` to use it as each chain's preferred endpoint.
 
-### 5. Single-file build (optional)
+### 5. Private deployment (optional)
 
-`npm run build:single` compiles the whole app into one self-contained `eurl.html` (hash router + inlined fonts, ~2.7 MB). It works by double-clicking (`file://`) or on any static host with no SPA fallback needed.
+- Set `walletWhitelist` to allow only specific wallets to create and resolve.
+- Set `chainWhitelist`/`chainBlacklist` to restrict which chains are usable.
+- Set `hideBlockedUrl: true` to never reveal a blocked target.
+
+For a private, fully self-contained deployment, `npm run build:single` compiles the whole app into one `eurl.html` (hash router + inlined fonts, ~2.7 MB). It works by double-clicking (`file://`) or on any static host with no SPA fallback needed:
 
 ```bash
 npm run build:single        # writes dist-single/ and copies to eurl.html in the repo root
 ```
 
 The default `npm run build` still produces the regular multi-file `dist/` — the single-file config (`vite.singlefile.config.ts`) is only used when `build:single` runs.
-
-### 6. Short code decoder
-
-`query.html` (repo root) is a **zero-dependency** short-code decoder. It decodes the base58 code locally and shows the chain, block number, transaction index, and packed value (decimal + hex), plus a link to the matching block explorer page. No network request is made.
-
-```text
-b/7Kx2mPq9            → prefix / code
-/c/3Wk/7Kx2mPq9       → generic chain ID form
-xx.yy                 → dotted fallback format (block.txIndex)
-```
-
-### 7. Private deployment (optional)
-
-- Set `walletWhitelist` to allow only specific wallets to create and resolve.
-- Set `chainWhitelist`/`chainBlacklist` to restrict which chains are usable.
-- Set `hideBlockedUrl: true` to never reveal a blocked target.
 
 ### Route table
 
