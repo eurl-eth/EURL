@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EURL 短码反解 · Short Code Decoder</title>
+<meta name="description" content="免依赖 EURL 链上短链接短码反解：输入短码，解码出区块号、交易序号。Decode EURL short codes offline.">
+<style>
+  :root {
+    --bg: #0d0f12;
+    --card: #15181d;
+    --border: #262b33;
+    --fg: #e8eaee;
+    --muted: #8b93a1;
+    --accent: #0052ff;
+    --ok: #34d399;
+    --err: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px;
+  }
+  .wrap { width: 100%; max-width: 640px; }
+  header { margin-bottom: 28px; text-align: center; }
+  header h1 { margin: 0 0 6px; font-size: 22px; letter-spacing: 0.02em; }
+  header p { margin: 0; color: var(--muted); font-size: 14px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  input[type="text"] {
+    flex: 1;
+    min-width: 240px;
+    background: #0d0f12;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--fg);
+    padding: 12px 14px;
+    font-size: 15px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    outline: none;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  select {
+    background: #0d0f12;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--fg);
+    padding: 12px 10px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  button:hover { filter: brightness(1.1); }
+  .hint { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+  .hint code { background: #0d0f12; border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+  .result { margin-top: 20px; display: none; }
+  .result.show { display: block; }
+  .error {
+    margin-top: 20px;
+    color: var(--err);
+    font-size: 14px;
+    display: none;
+  }
+  .error.show { display: block; }
+  .kvs { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .kv {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0d0f12;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .kv .k { color: var(--muted); font-size: 13px; }
+  .kv .v { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; word-break: break-all; }
+  .kv .v.ok { color: var(--ok); }
+  a.explorer {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+  }
+  a.explorer:hover { text-decoration: underline; }
+  footer { margin-top: 32px; color: var(--muted); font-size: 12px; text-align: center; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>EURL 短码反解</h1>
+    <p>Short Code Decoder · 纯本地解码，不发送任何请求</p>
+  </header>
+
+  <div class="card">
+    <label for="code">输入短链接 / 短码</label>
+    <div class="row">
+      <input type="text" id="code" placeholder="b/7Kx2mPq9 或 7Kx2mPq9" spellcheck="false" autocomplete="off">
+      <select id="chain"></select>
+    </div>
+    <button id="decode" style="margin-top:14px">反解</button>
+    <div class="hint">
+      支持：<code>b/7Kx2mPq9</code>（前缀/短码）、<code>/c/3Wk/7Kx2mPq9</code>（通用链 ID）、
+      <code>xx.yy</code>（点分回退格式）。未带前缀时使用上方选中的链。
+    </div>
+  </div>
+
+  <div class="error" id="error"></div>
+
+  <div class="result card" id="result">
+    <div class="kvs">
+      <div class="kv"><span class="k">链</span><span class="v" id="r-chain"></span></div>
+      <div class="kv"><span class="k">Chain ID</span><span class="v" id="r-chainid"></span></div>
+      <div class="kv"><span class="k">区块号 Block</span><span class="v ok" id="r-block"></span></div>
+      <div class="kv"><span class="k">交易序号 TxIndex</span><span class="v" id="r-txindex"></span></div>
+      <div class="kv"><span class="k">打包值 Packed</span><span class="v" id="r-packed"></span></div>
+      <div class="kv"><span class="k">Packed (hex)</span><span class="v" id="r-hex"></span></div>
+    </div>
+    <a class="explorer" id="r-link" href="#" target="_blank" rel="noreferrer">在区块浏览器查看该区块 ↗</a>
+  </div>
+
+  <footer>
+    EURL 短码 = base58((blockNumber &lt;&lt; 16) | transactionIndex) · 数据永存链上
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict'
+
+  var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+  var BASE = 58n
+  var CHAR_TO_VALUE = new Map()
+  for (var i = 0; i < ALPHABET.length; i++) CHAR_TO_VALUE.set(ALPHABET[i], BigInt(i))
+
+  function base58Decode(str) {
+    if (str.length === 0) throw new Error('空短码')
+    var num = 0n
+    for (var j = 0; j < str.length; j++) {
+      var v = CHAR_TO_VALUE.get(str[j])
+      if (v === undefined) throw new Error('无效字符 "' + str[j] + '"')
+      num = num * BASE + v
+    }
+    return num
+  }
+
+  var TX_INDEX_BITS = 16n
+  var TX_INDEX_MASK = (1n << TX_INDEX_BITS) - 1n
+
+  var CHAINS = [
+    { prefix: 'b', chainId: 8453,      name: 'Base',               explorer: 'https://basescan.org' },
+    { prefix: 'a', chainId: 42161,     name: 'Arbitrum One',       explorer: 'https://arbiscan.io' },
+    { prefix: 'o', chainId: 10,        name: 'Optimism',           explorer: 'https://optimistic.etherscan.io' },
+    { prefix: 'e', chainId: 1,         name: 'Ethereum Mainnet',   explorer: 'https://etherscan.io' },
+    { prefix: 's', chainId: 11155111,  name: 'Sepolia (testnet)',  explorer: 'https://sepolia.etherscan.io' },
+    { prefix: 'q', chainId: 56,        name: 'BNB(BSC)',           explorer: 'https://bscscan.com' },
+    { prefix: 'p', chainId: 137,       name: 'Polygon',            explorer: 'https://polygonscan.com' },
+    { prefix: 'g', chainId: 100,       name: 'Gnosis',             explorer: 'https://gnosisscan.io' },
+    { prefix: 'x', chainId: 43114,     name: 'AVAX-C',             explorer: 'https://snowtrace.io' },
+    { prefix: 'u', chainId: 130,       name: 'Unichain',           explorer: 'https://uniscan.xyz' },
+    { prefix: 'l', chainId: 59144,     name: 'Linea',              explorer: 'https://lineascan.build' },
+    { prefix: 'n', chainId: 42220,     name: 'Celo',               explorer: 'https://celoscan.io' },
+    { prefix: 'm', chainId: 5000,      name: 'Mantle',             explorer: 'https://mantlescan.xyz' },
+    { prefix: 'w', chainId: 480,       name: 'World',              explorer: 'https://worldscan.org' },
+    { prefix: 'k', chainId: 57073,     name: 'Ink',                explorer: 'https://explorer.inkonchain.com' },
+    { prefix: 'd', chainId: 143,       name: 'Monad',              explorer: 'https://monadscan.com' },
+    { prefix: 'v', chainId: 9745,      name: 'Plasma',             explorer: 'https://plasmascan.to' },
+    { prefix: 'h', chainId: 560048,    name: 'Hoodi (testnet)',    explorer: 'https://etherscan.io' },
+    { prefix: 'y', chainId: 39438162,  name: 'Ephemery (testnet)', explorer: 'https://explorer.ephemery.dev' }
+  ]
+
+  function chainByPrefix(p) { return CHAINS.find(function (c) { return c.prefix === p }) }
+  function chainByChainId(id) { return CHAINS.find(function (c) { return c.chainId === id }) }
+
+  var chainSelect = document.getElementById('chain')
+  CHAINS.forEach(function (c) {
+    var opt = document.createElement('option')
+    opt.value = c.prefix
+    opt.textContent = c.name + ' (' + c.prefix + ')'
+    chainSelect.appendChild(opt)
+  })
+
+  function decodePointer(id) {
+    if (id.indexOf('.') !== -1) {
+      var parts = id.split('.')
+      if (parts.length !== 2 || parts[0].length === 0 || parts[1].length === 0) {
+        throw new Error('点分格式无效：应为 base58(区块).base58(序号)')
+      }
+      var blockNumber = base58Decode(parts[0])
+      var txIndex = base58Decode(parts[1])
+      if (txIndex > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error('交易序号超出范围')
+      return { blockNumber: blockNumber, transactionIndex: Number(txIndex), packed: null }
+    }
+    var packed = base58Decode(id)
+    return {
+      blockNumber: packed >> TX_INDEX_BITS,
+      transactionIndex: Number(packed & TX_INDEX_MASK),
+      packed: packed
+    }
+  }
+
+  function parseInput(raw) {
+    var s = raw.trim().replace(/^https?:\/\/[^/]*\//i, '/').replace(/^\/+/, '')
+    var m = /^c\/([^/]+)\/(.+)$/.exec(s)
+    if (m) {
+      var cidParam = m[1]
+      var id = m[2]
+      var cid = /^\d+$/.test(cidParam) ? Number(cidParam) : (function () {
+        var n = base58Decode(cidParam)
+        return n > 0n && n <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(n) : NaN
+      })()
+      var chain = chainByChainId(cid)
+      if (!chain) throw new Error('未知 Chain ID: ' + cidParam)
+      return { chain: chain, id: id }
+    }
+    var m2 = /^([A-Za-z])\/(.+)$/.exec(s)
+    if (m2) {
+      var chain2 = chainByPrefix(m2[1])
+      if (!chain2) throw new Error('未知链前缀: ' + m2[1])
+      return { chain: chain2, id: m2[2] }
+    }
+    if (s.length === 0) throw new Error('请输入短码')
+    var defaultChain = chainByPrefix(chainSelect.value)
+    return { chain: defaultChain, id: s }
+  }
+
+  function fmt(n) { return n.toString() }
+
+  function decode() {
+    var errorEl = document.getElementById('error')
+    var resultEl = document.getElementById('result')
+    errorEl.classList.remove('show')
+    resultEl.classList.remove('show')
+    var raw = document.getElementById('code').value
+    try {
+      var parsed = parseInput(raw)
+      var ptr = decodePointer(parsed.id)
+
+      document.getElementById('r-chain').textContent = parsed.chain.name
+      document.getElementById('r-chainid').textContent = String(parsed.chain.chainId)
+      document.getElementById('r-block').textContent = fmt(ptr.blockNumber)
+      document.getElementById('r-txindex').textContent = String(ptr.transactionIndex)
+      document.getElementById('r-packed').textContent =
+        ptr.packed === null ? '—（点分格式）' : fmt(ptr.packed)
+      document.getElementById('r-hex').textContent =
+        ptr.packed === null ? '—（点分格式）' : '0x' + ptr.packed.toString(16)
+
+      var link = document.getElementById('r-link')
+      link.href = parsed.chain.explorer + '/block/' + fmt(ptr.blockNumber)
+      link.textContent = '在 ' + parsed.chain.name + ' 区块浏览器查看第 ' + fmt(ptr.blockNumber) + ' 区块 ↗'
+
+      resultEl.classList.add('show')
+    } catch (e) {
+      errorEl.textContent = '解码失败：' + e.message
+      errorEl.classList.add('show')
+    }
+  }
+
+  document.getElementById('decode').addEventListener('click', decode)
+  document.getElementById('code').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') decode()
+  })
+
+  var hash = location.hash.replace(/^#\/?/, '')
+  if (hash) {
+    document.getElementById('code').value = hash
+    decode()
+  }
+})()
+</script>
+</body>
+</html>

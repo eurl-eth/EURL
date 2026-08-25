@@ -1,0 +1,23 @@
+# EURL
+
+> EURL is a contractless on-chain short-link service. Target URLs are written as UTF-8 text into a normal EVM transaction's calldata (`EURL:U1:<url>`), so links live forever in blockchain history. No smart contracts, no accounts, no cookies.
+
+## Important
+
+- Short code = `base58((blockNumber << 16) | transactionIndex)`, with a dotted `block.index` fallback when `transactionIndex >= 65536`.
+- Link format: `https://<domain>/<prefix>/<code>`; chains without a configured prefix use `/c/<base58(chainId)>/<code>`.
+- Available domains: `www.com.kg`, `xn--qv8h.eu.org` (display: `🔗.eu.org`), `kurl.eu.org` — all point to this app.
+- Prefix → chain: `b` Base, `a` Arbitrum, `o` Optimism, `e` Ethereum, `q` BNB, `p` Polygon, `g` Gnosis, `x` AVAX-C, `u` Unichain, `l` Linea, `n` Celo, `m` Mantle, `w` World, `k` Ink, `d` Monad, `v` Plasma, `s` Sepolia (testnet), `h` Hoodi (testnet), `y` Ephemery (testnet, cleared monthly).
+- Creating a link costs only on-chain gas (usually < $0.002 on L2s).
+
+## For AI agents
+
+To create a short link, use the dedicated skill:
+
+- [eurl-create-link skill](skills/eurl-create-link/SKILL.md): Full instructions for creating short links via the web UI, or by broadcasting a transaction yourself (with browser) and computing the short code from the receipt. Includes the calldata format, prefix→chain mapping, base58 algorithm, and domain list.
+
+## Optional
+
+- [About](https://eurl.knowing-sprout.workers.dev/about): Overview, data format, privacy policy, terms, and takedown process.
+- [Blocklist repo](https://github.com/eurl-eth/blocklist): Community-maintained blocklist (short links / target URLs / wallet addresses) merged via PR.
+- [Safety data](https://safebrowsing.google.com): Google Safe Browsing is used for phishing/malware checks; MetaMask's phishing list is also consulted.

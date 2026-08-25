@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "eurl-rpc-proxy",
+  "main": "worker.ts",
+  "compatibility_date": "2025-05-01"
+}

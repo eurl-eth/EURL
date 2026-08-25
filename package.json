@@ -1,0 +1,42 @@
+{
+  "name": "eurl",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Contractless on-chain short links: URLs stored permanently in transaction calldata",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "build:single": "tsc --noEmit && vite build --config vite.singlefile.config.ts && node scripts/inline-fonts.mjs",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.62.0",
+    "@walletconnect/ethereum-provider": "^2.17.2",
+    "geist": "^1.7.2",
+    "punycode": "^2.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "viem": "^2.21.54",
+    "wagmi": "^2.14.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/punycode": "^2.1.4",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.16.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.17.0",
+    "vite": "^6.0.3",
+    "vite-plugin-singlefile": "^2.3.3",
+    "vitest": "^3.0.0"
+  }
+}

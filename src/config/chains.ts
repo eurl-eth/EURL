@@ -1,0 +1,318 @@
+import { defineChain, type Chain } from 'viem'
+import {
+  arbitrum,
+  avalanche,
+  base,
+  bsc,
+  celo,
+  gnosis,
+  hoodi,
+  ink,
+  linea,
+  mainnet,
+  mantle,
+  monad,
+  optimism,
+  plasma,
+  polygon,
+  sepolia,
+  unichain,
+  worldchain,
+} from 'viem/chains'
+
+export interface ChainConfig {
+  prefix: string
+  chainId: number
+  name: string
+  nativeSymbol: string
+  rpcs: string[]
+  explorer: string
+  explorerTx: string
+  testnet: boolean
+  brandColor?: string
+  brandTextColor?: string
+  viemChain?: Chain
+  tipAddress?: string
+  faucetUrl?: string
+  priceId?: string
+  resetNote?: string
+}
+
+const ephemery = defineChain({
+  id: 39438162,
+  name: 'Ephemery',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://otter.bordel.wtf/erigon'] } },
+})
+
+export const CHAINS: ChainConfig[] = [
+  {
+    prefix: 'b',
+    chainId: base.id,
+    name: 'Base',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://mainnet.base.org', 'https://base-rpc.publicnode.com'],
+    explorer: 'https://basescan.org',
+    explorerTx: 'https://basescan.org/tx/{hash}',
+    testnet: false,
+    brandColor: '#0052FF',
+    brandTextColor: '#4D6FE0',
+    viemChain: base,
+    priceId: 'ethereum',
+  },
+  {
+    prefix: 'a',
+    chainId: arbitrum.id,
+    name: 'Arbitrum One',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://arb1.arbitrum.io/rpc', 'https://arbitrum-one-rpc.publicnode.com'],
+    explorer: 'https://arbiscan.io',
+    explorerTx: 'https://arbiscan.io/tx/{hash}',
+    testnet: false,
+    brandColor: '#28A0F0',
+    viemChain: arbitrum,
+    priceId: 'ethereum',
+  },
+  {
+    prefix: 'o',
+    chainId: optimism.id,
+    name: 'Optimism',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://optimism-rpc.publicnode.com', 'https://optimism.llamarpc.com', 'https://optimism.drpc.org'],
+    explorer: 'https://optimistic.etherscan.io',
+    explorerTx: 'https://optimistic.etherscan.io/tx/{hash}',
+    testnet: false,
+    brandColor: '#F87171',
+    viemChain: optimism,
+    priceId: 'ethereum',
+  },
+  {
+    prefix: 'e',
+    chainId: mainnet.id,
+    name: 'Ethereum Mainnet',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://ethereum-rpc.publicnode.com', 'https://eth.llamarpc.com'],
+    explorer: 'https://etherscan.io',
+    explorerTx: 'https://etherscan.io/tx/{hash}',
+    testnet: false,
+    brandColor: '#627EEA',
+    viemChain: mainnet,
+    priceId: 'ethereum',
+  },
+  {
+    prefix: 's',
+    chainId: sepolia.id,
+    name: 'Sepolia',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://ethereum-sepolia-rpc.publicnode.com', 'https://sepolia.gateway.tenderly.co'],
+    explorer: 'https://sepolia.etherscan.io',
+    explorerTx: 'https://sepolia.etherscan.io/tx/{hash}',
+    testnet: true,
+    brandColor: '#7A8AA8',
+    viemChain: sepolia,
+    faucetUrl: 'https://sepoliafaucet.com',
+    priceId: 'ethereum',
+  },
+  {
+    prefix: 'q',
+    chainId: bsc.id,
+    name: 'BNB(BSC)',
+    nativeSymbol: 'BNB',
+    rpcs: ['https://bsc-rpc.publicnode.com', 'https://bsc-dataseed.binance.org'],
+    explorer: 'https://bscscan.com',
+    explorerTx: 'https://bscscan.com/tx/{hash}',
+    testnet: false,
+    brandColor: '#F0B90B',
+    viemChain: bsc,
+    priceId: 'binancecoin',
+  },
+  {
+    prefix: 'p',
+    chainId: polygon.id,
+    name: 'Polygon',
+    nativeSymbol: 'POL',
+    rpcs: ['https://polygon.drpc.org', 'https://1rpc.io/matic'],
+    explorer: 'https://polygonscan.com',
+    explorerTx: 'https://polygonscan.com/tx/{hash}',
+    testnet: false,
+    brandColor: '#8247E5',
+    viemChain: polygon,
+    priceId: 'pol',
+  },
+  {
+    prefix: 'g',
+    chainId: gnosis.id,
+    name: 'Gnosis',
+    nativeSymbol: 'XDAI',
+    rpcs: ['https://gnosis-rpc.publicnode.com', 'https://rpc.gnosischain.com'],
+    explorer: 'https://gnosisscan.io',
+    explorerTx: 'https://gnosisscan.io/tx/{hash}',
+    testnet: false,
+    brandColor: '#04795B',
+    viemChain: gnosis,
+    priceId: 'xdai',
+  },
+  {
+    prefix: 'x',
+    chainId: avalanche.id,
+    name: 'AVAX-C',
+    nativeSymbol: 'AVAX',
+    rpcs: ['https://avalanche-c-chain-rpc.publicnode.com', 'https://api.avax.network/ext/bc/C/rpc'],
+    explorer: 'https://snowtrace.io',
+    explorerTx: 'https://snowtrace.io/tx/{hash}',
+    testnet: false,
+    brandColor: '#E84142',
+    viemChain: avalanche,
+    priceId: 'avalanche',
+  },
+  {
+    prefix: 'u',
+    chainId: unichain.id,
+    name: 'Unichain',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://mainnet.unichain.org', 'https://unichain-rpc.publicnode.com'],
+    explorer: 'https://uniscan.xyz',
+    explorerTx: 'https://uniscan.xyz/tx/{hash}',
+    testnet: false,
+    brandColor: '#FF007A',
+    viemChain: unichain,
+    priceId: 'ethereum',
+  },
+  {
+    prefix: 'l',
+    chainId: linea.id,
+    name: 'Linea',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://rpc.linea.build', 'https://linea-rpc.publicnode.com'],
+    explorer: 'https://lineascan.build',
+    explorerTx: 'https://lineascan.build/tx/{hash}',
+    testnet: false,
+    brandColor: '#5ed8f7',
+    viemChain: linea,
+    priceId: 'ethereum',
+  },
+  {
+    prefix: 'n',
+    chainId: celo.id,
+    name: 'Celo',
+    nativeSymbol: 'CELO',
+    rpcs: ['https://celo-rpc.publicnode.com', 'https://forno.celo.org'],
+    explorer: 'https://celoscan.io',
+    explorerTx: 'https://celoscan.io/tx/{hash}',
+    testnet: false,
+    brandColor: '#C7A500',
+    viemChain: celo,
+    priceId: 'celo',
+  },
+  {
+    prefix: 'm',
+    chainId: mantle.id,
+    name: 'Mantle',
+    nativeSymbol: 'MNT',
+    rpcs: ['https://rpc.mantle.xyz', 'https://mantle-rpc.publicnode.com'],
+    explorer: 'https://mantlescan.xyz',
+    explorerTx: 'https://mantlescan.xyz/tx/{hash}',
+    testnet: false,
+    brandColor: '#7BB8B2',
+    viemChain: mantle,
+    priceId: 'mantle',
+  },
+  {
+    prefix: 'w',
+    chainId: worldchain.id,
+    name: 'World',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://worldchain.drpc.org', 'https://worldchain-mainnet.g.alchemy.com/public'],
+    explorer: 'https://worldscan.org',
+    explorerTx: 'https://worldscan.org/tx/{hash}',
+    testnet: false,
+    brandColor: '#71717A',
+    viemChain: worldchain,
+    priceId: 'ethereum',
+  },
+  {
+    prefix: 'k',
+    chainId: ink.id,
+    name: 'Ink',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://rpc-qnd.inkonchain.com', 'https://rpc-gel.inkonchain.com'],
+    explorer: 'https://explorer.inkonchain.com',
+    explorerTx: 'https://explorer.inkonchain.com/tx/{hash}',
+    testnet: false,
+    brandColor: '#7132f5',
+    viemChain: ink,
+    priceId: 'ethereum',
+  },
+  {
+    prefix: 'd',
+    chainId: monad.id,
+    name: 'Monad',
+    nativeSymbol: 'MON',
+    rpcs: ['https://monad.drpc.org', 'https://rpc.monad.xyz'],
+    explorer: 'https://monadscan.com',
+    explorerTx: 'https://monadscan.com/tx/{hash}',
+    testnet: false,
+    brandColor: '#836EF9',
+    viemChain: monad,
+    priceId: 'monad',
+  },
+  {
+    prefix: 'v',
+    chainId: plasma.id,
+    name: 'Plasma',
+    nativeSymbol: 'XPL',
+    rpcs: ['https://rpc.plasma.to'],
+    explorer: 'https://plasmascan.to',
+    explorerTx: 'https://plasmascan.to/tx/{hash}',
+    testnet: false,
+    brandColor: '#0FA47F',
+    viemChain: plasma,
+    priceId: 'plasma',
+  },
+  {
+    prefix: 'h',
+    chainId: hoodi.id,
+    name: 'Hoodi',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://hoodi.drpc.org', 'https://hoodi.gateway.tenderly.co'],
+    explorer: 'https://etherscan.io',
+    explorerTx: 'https://etherscan.io/tx/{hash}',
+    testnet: true,
+    brandColor: '#8A8FA3',
+    viemChain: hoodi,
+    priceId: 'ethereum',
+    faucetUrl: 'https://faucet.hoodi.ethpandaops.io',
+  },
+  {
+    prefix: 'y',
+    chainId: ephemery.id,
+    name: 'Ephemery',
+    nativeSymbol: 'ETH',
+    rpcs: ['https://otter.bordel.wtf/erigon'],
+    explorer: 'https://explorer.ephemery.dev',
+    explorerTx: 'https://explorer.ephemery.dev/tx/{hash}',
+    testnet: true,
+    brandColor: '#B48EAD',
+    viemChain: ephemery,
+    priceId: 'ethereum',
+    faucetUrl: 'https://ephemery-faucet.pk910.de',
+    resetNote: 'monthly',
+  },
+]
+
+const byPrefix = new Map(CHAINS.map((c) => [c.prefix, c]))
+const byChainId = new Map(CHAINS.map((c) => [c.chainId, c]))
+
+export function getChainByPrefix(prefix: string | undefined): ChainConfig | undefined {
+  return prefix ? byPrefix.get(prefix) : undefined
+}
+
+export function getChainById(chainId: number): ChainConfig | undefined {
+  return byChainId.get(chainId)
+}
+
+export const MAINNET_CHAINS = CHAINS.filter((c) => !c.testnet)
+export const TESTNET_CHAINS = CHAINS.filter((c) => c.testnet)
+export const wagmiChains = CHAINS.map((c) => c.viemChain).filter(
+  (c): c is Chain => c !== undefined,
+) as [Chain, ...Chain[]]

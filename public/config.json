@@ -1,0 +1,21 @@
+{
+  "appName": "EURL",
+  "callDataVersion": "U1",
+  "defaultPrefix": "b",
+  "wcProjectId": "438d993e01dee143ce7113ba39c4437b",
+  "gsbApiKey": "",
+  "gsbUrl": "https://gsb.api.mili.one",
+  "mainChainPrefixes": ["b", "a", "e", "s"],
+  "linkDomains": ["www.com.kg", "🔗.eu.org", "kurl.eu.org"],
+  "walletWhitelist": [],
+  "hiddenChains": [],
+  "chainWhitelist": [],
+  "chainBlacklist": [],
+  "maxUrlLength": 2000,
+  "redirectCountdownSeconds": 3,
+  "rpcTimeoutMs": 10000,
+  "showTestnets": true,
+  "rpcProxyUrl": "",
+  "dataRecipient": "0x000000000000000000000000000000000000dEaD",
+  "hideBlockedUrl": false
+}
