@@ -117,17 +117,6 @@ export function checkLocalRules(url: string): { ok: true } | { ok: false; reason
   return { ok: true }
 }
 
-function bytesToBase64(bytes: Uint8Array): string {
-  let bin = ''
-  for (const b of bytes) bin += String.fromCharCode(b)
-  return btoa(bin)
-}
-
-async function sha256(text: string): Promise<Uint8Array> {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
-  return new Uint8Array(digest)
-}
-
 export function gsbUrlVariants(url: string): string[] {
   const parsed = new URL(url)
   const scheme = parsed.protocol.toLowerCase()
@@ -149,11 +138,7 @@ export function gsbUrlVariants(url: string): string[] {
 
 async function gsbCheck(url: string): Promise<boolean> {
   const variants = gsbUrlVariants(url)
-  const entries: { hash: string }[] = []
-  for (const v of variants) {
-    const full = await sha256(v)
-    entries.push({ hash: bytesToBase64(full.slice(0, 8)) })
-  }
+  const entries: { url: string }[] = variants.map((v) => ({ url: v }))
   const endpoint = config.gsbUrl || 'https://safebrowsing.googleapis.com/v5/threatMatches:find'
   const base =
     /threatMatches:find$/.test(endpoint) || /v[45]\//.test(endpoint)
