@@ -1,11 +1,11 @@
 const CHAIN_RPCS: Record<string, string[]> = {
-  '8453': ['https://mainnet.base.org', 'https://base-rpc.publicnode.com'],
-  '42161': ['https://arb1.arbitrum.io/rpc', 'https://arbitrum-one-rpc.publicnode.com'],
+  '8453': ['https://mainnet.base.org', 'https://base-rpc.publicnode.com', 'https://base.drpc.org', 'https://1rpc.io/base', 'https://base.meowrpc.com'],
+  '42161': ['https://arb1.arbitrum.io/rpc', 'https://arbitrum-one-rpc.publicnode.com', 'https://arbitrum.drpc.org', 'https://1rpc.io/arb', 'https://arbitrum.meowrpc.com', 'https://arbitrum.publicnode.com'],
   '10': ['https://mainnet.optimism.io', 'https://optimism-rpc.publicnode.com'],
-  '1': ['https://ethereum-rpc.publicnode.com', 'https://eth.llamarpc.com'],
+  '1': ['https://ethereum-rpc.publicnode.com', 'https://eth.drpc.org', 'https://1rpc.io/eth', 'https://eth.merkle.io', 'https://mainnet.gateway.tenderly.co', 'https://ethereum.publicnode.com'],
   '84532': ['https://sepolia.base.org', 'https://base-sepolia-rpc.publicnode.com'],
   '421614': ['https://sepolia-rollup.arbitrum.io/rpc', 'https://arbitrum-sepolia-rpc.publicnode.com'],
-  '11155111': ['https://ethereum-sepolia-rpc.publicnode.com', 'https://sepolia.gateway.tenderly.co'],
+  '11155111': ['https://ethereum-sepolia-rpc.publicnode.com', 'https://ethereum-sepolia.publicnode.com', 'https://sepolia.gateway.tenderly.co', 'https://1rpc.io/sepolia'],
 }
 
 const ALLOWED_METHODS = new Set([

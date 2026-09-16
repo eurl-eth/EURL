@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAccount } from 'wagmi'
-import { useI18n } from '../i18n'
+import { useI18n, type Lang, LANG_ORDER, LANG_LABELS } from '../i18n'
 import { getChainById } from '../config/chains'
 import { CubeMark, IconX } from './Icons'
 
@@ -63,13 +63,20 @@ export function Layout({ children }: { children: ReactNode }) {
               {t('common.navAbout')}
             </NavLink>
           </nav>
-          <button
-            type="button"
-            className="lang-toggle"
-            onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
-          >
-            {lang === 'zh' ? 'EN' : '中文'}
-          </button>
+          <label className="lang-toggle">
+            <select
+              className="lang-select"
+              value={lang}
+              onChange={(e) => setLang(e.target.value as Lang)}
+              aria-label="Language"
+            >
+              {LANG_ORDER.map((l) => (
+                <option key={l} value={l}>
+                  {LANG_LABELS[l]}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       </header>
       <main className="main">{children}</main>

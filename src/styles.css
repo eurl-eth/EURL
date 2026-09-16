@@ -202,13 +202,34 @@ a {
   color: var(--muted-fg);
   border-radius: 6px;
   height: 32px;
-  padding: 0 12px;
-  cursor: pointer;
+  margin: 0;
   font-size: 13px;
   font-family: var(--sans);
+  display: inline-flex;
+  align-items: center;
   transition:
     color 0.15s,
     border-color 0.15s;
+}
+
+.lang-select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  height: 100%;
+  padding: 0 26px 0 10px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.lang-select option {
+  color: #111;
+  background: #fff;
 }
 
 .lang-toggle:hover {
@@ -629,6 +650,7 @@ input.mono {
 
 .btn:focus-visible,
 .lang-toggle:focus-visible,
+.lang-select:focus-visible,
 .chip:focus-visible,
 input:focus-visible {
   outline: 2px solid var(--ring);
@@ -1113,6 +1135,18 @@ details.advanced summary {
 
 .modal.chain-modal {
   max-width: 560px;
+  max-height: calc(100dvh - 40px);
+  display: flex;
+  flex-direction: column;
+}
+
+.chain-modal .modal-head {
+  flex: none;
+}
+
+.chain-modal .chain-modal-list {
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .modal-head {
@@ -1256,6 +1290,7 @@ details.advanced summary {
 .opt-desc {
   font-size: 12.5px;
   color: var(--muted-fg);
+  overflow-wrap: anywhere;
 }
 
 .opt-busy {
@@ -1400,6 +1435,14 @@ details.advanced summary {
 
   .card {
     padding: 22px;
+  }
+
+  .chain-modal-list {
+    grid-template-columns: 1fr;
+  }
+
+  .chain-modal-list .chain-custom {
+    flex-direction: row;
   }
 
   .header-inner {

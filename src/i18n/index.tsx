@@ -7,10 +7,25 @@ import {
 } from 'react'
 import { en } from './en'
 import { zh } from './zh'
+import { zhHant } from './zh-hant'
+import { ja } from './ja'
+import { ko } from './ko'
 
-export type Lang = 'zh' | 'en'
+export type Lang = 'zh' | 'zhHant' | 'ja' | 'ko' | 'en'
 
-const dictionaries: Record<Lang, typeof zh> = { zh, en }
+const dictionaries: Record<Lang, typeof zh> = { zh, zhHant, ja, ko, en }
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const LANG_ORDER: Lang[] = ['zh', 'zhHant', 'ja', 'ko', 'en']
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const LANG_LABELS: Record<Lang, string> = {
+  zh: '简体中文',
+  zhHant: '繁體中文',
+  ja: '日本語',
+  ko: '한국어',
+  en: 'English',
+}
 
 function lookup(dict: unknown, path: string): unknown {
   let cur: unknown = dict
@@ -39,13 +54,16 @@ const I18nContext = createContext<I18nContextValue>({
 function initialLang(): Lang {
   try {
     const saved = localStorage.getItem('eurl:lang')
-    if (saved === 'zh' || saved === 'en') return saved
+    if (saved && saved in dictionaries) return saved as Lang
   } catch {
     /* ignore */
   }
-  return typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('zh')
-    ? 'zh'
-    : 'en'
+  const nav =
+    typeof navigator !== 'undefined' ? navigator.language.toLowerCase() : ''
+  if (nav.startsWith('zh')) return nav.startsWith('zh-hant') || nav.startsWith('zh-hk') || nav.startsWith('zh-tw') ? 'zhHant' : 'zh'
+  if (nav.startsWith('ja')) return 'ja'
+  if (nav.startsWith('ko')) return 'ko'
+  return 'en'
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
