@@ -138,12 +138,18 @@ export function IconAuto({ size = 16 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path
-        d="M10.5 2.5a6 6 0 11-5 5"
+        d="M8 1.5a6.5 6.5 0 110 13 6.5 6.5 0 010-13z"
         stroke="currentColor"
         strokeWidth="1.3"
-        strokeLinecap="round"
+        strokeLinejoin="round"
       />
-      <path d="M10 1L11 3.5 13.5 4.5 11 5.5 10 8 9 5.5 6.5 4.5 9 3.5z" fill="currentColor" />
+      <path
+        d="M8 1.5a6.5 6.5 0 016.5 6.5z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }

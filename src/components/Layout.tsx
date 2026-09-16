@@ -65,35 +65,37 @@ export function Layout({ children }: { children: ReactNode }) {
               {t('common.navAbout')}
             </NavLink>
           </nav>
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={cycleTheme}
-            title={theme}
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? (
-              <IconMoon size={16} />
-            ) : theme === 'light' ? (
-              <IconSun size={16} />
-            ) : (
-              <IconAuto size={16} />
-            )}
-          </button>
-          <label className="lang-toggle">
-            <select
-              className="lang-select"
-              value={lang}
-              onChange={(e) => setLang(e.target.value as Lang)}
-              aria-label="Language"
+          <div className="header-actions">
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={cycleTheme}
+              title={theme}
+              aria-label="Toggle theme"
             >
-              {LANG_ORDER.map((l) => (
-                <option key={l} value={l}>
-                  {LANG_LABELS[l]}
-                </option>
-              ))}
-            </select>
-          </label>
+              {theme === 'dark' ? (
+                <IconMoon size={16} />
+              ) : theme === 'light' ? (
+                <IconSun size={16} />
+              ) : (
+                <IconAuto size={16} />
+              )}
+            </button>
+            <label className="lang-toggle">
+              <select
+                className="lang-select"
+                value={lang}
+                onChange={(e) => setLang(e.target.value as Lang)}
+                aria-label="Language"
+              >
+                {LANG_ORDER.map((l) => (
+                  <option key={l} value={l}>
+                    {LANG_LABELS[l]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
       </header>
       <main className="main">{children}</main>

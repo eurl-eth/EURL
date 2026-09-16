@@ -240,8 +240,15 @@ a {
     border-color 0.15s;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
 .theme-toggle {
-  border: 1px solid var(--border);
+  border: none;
   background: transparent;
   color: var(--muted-fg);
   border-radius: 6px;
