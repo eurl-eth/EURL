@@ -15,6 +15,7 @@
 }
 
 :root {
+  color-scheme: light;
   --bg: #fafafa;
   --fg: #171717;
   --card: #ffffff;
@@ -46,8 +47,35 @@
   --header-h: 64px;
 }
 
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0a0a0a;
+  --fg: #ededed;
+  --card: #111111;
+  --muted: #1a1a1a;
+  --muted-fg: #a1a1a1;
+  --border: #262626;
+  --border-strong: #3f3f3f;
+  --ring: #525252;
+  --primary-hover: #c9c9c9;
+  --grid-dot: rgba(237, 237, 237, 0.09);
+  --hb-stroke: rgba(237, 237, 237, 0.16);
+  --hb-fill: rgba(17, 17, 17, 0.5);
+  --shadow-card: none;
+  --danger: #f87171;
+  --danger-bg: rgba(239, 68, 68, 0.08);
+  --danger-border: rgba(239, 68, 68, 0.3);
+  --warn: #fbbf24;
+  --warn-bg: rgba(245, 158, 11, 0.08);
+  --warn-border: rgba(245, 158, 11, 0.3);
+  --ok: #4ade80;
+  --ok-bg: rgba(34, 197, 94, 0.08);
+  --ok-border: rgba(34, 197, 94, 0.3);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
     --bg: #0a0a0a;
     --fg: #ededed;
     --card: #111111;
@@ -212,6 +240,24 @@ a {
     border-color 0.15s;
 }
 
+.theme-toggle {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted-fg);
+  border-radius: 6px;
+  height: 32px;
+  width: 32px;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+
 .lang-select {
   appearance: none;
   -webkit-appearance: none;
@@ -232,7 +278,8 @@ a {
   background: #fff;
 }
 
-.lang-toggle:hover {
+.lang-toggle:hover,
+.theme-toggle:hover {
   color: var(--fg);
   border-color: var(--border-strong);
 }
@@ -651,6 +698,7 @@ input.mono {
 .btn:focus-visible,
 .lang-toggle:focus-visible,
 .lang-select:focus-visible,
+.theme-toggle:focus-visible,
 .chip:focus-visible,
 input:focus-visible {
   outline: 2px solid var(--ring);
@@ -772,15 +820,25 @@ input:focus-visible {
 }
 
 @media (prefers-color-scheme: dark) {
-  .chip-primary {
+  :root:not([data-theme='light']) .chip-primary {
     border-color: #52525b;
     color: #a1a1aa;
   }
 
-  .chip-primary:hover:not(:disabled) {
+  :root:not([data-theme='light']) .chip-primary:hover:not(:disabled) {
     border-color: #a1a1aa;
     color: #d4d4d8;
   }
+}
+
+:root[data-theme='dark'] .chip-primary {
+  border-color: #52525b;
+  color: #a1a1aa;
+}
+
+:root[data-theme='dark'] .chip-primary:hover:not(:disabled) {
+  border-color: #a1a1aa;
+  color: #d4d4d8;
 }
 
 .chip-brand {

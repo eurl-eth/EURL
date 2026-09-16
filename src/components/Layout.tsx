@@ -2,11 +2,13 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAccount } from 'wagmi'
 import { useI18n, type Lang, LANG_ORDER, LANG_LABELS } from '../i18n'
+import { useTheme } from '../theme'
 import { getChainById } from '../config/chains'
-import { CubeMark, IconX } from './Icons'
+import { CubeMark, IconX, IconSun, IconMoon, IconAuto } from './Icons'
 
 export function Layout({ children }: { children: ReactNode }) {
   const { t, lang, setLang } = useI18n()
+  const { theme, cycleTheme } = useTheme()
   const { pathname } = useLocation()
   const { isConnected, address, chainId } = useAccount()
   const [showFullAddr, setShowFullAddr] = useState(false)
@@ -63,6 +65,21 @@ export function Layout({ children }: { children: ReactNode }) {
               {t('common.navAbout')}
             </NavLink>
           </nav>
+          <button
+            type="button"
+            className="theme-toggle"
+            onClick={cycleTheme}
+            title={theme}
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? (
+              <IconMoon size={16} />
+            ) : theme === 'light' ? (
+              <IconSun size={16} />
+            ) : (
+              <IconAuto size={16} />
+            )}
+          </button>
           <label className="lang-toggle">
             <select
               className="lang-select"
